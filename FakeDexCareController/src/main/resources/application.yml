@@ -1,0 +1,47 @@
+server:
+  port: 8082 # 내장 톰캣 포트번호 (DexCare vendor runs on 8081)
+
+spring:
+  application:
+    name: FakeDexCareController
+
+  # H2 Database 설정
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: 'jdbc:h2:mem:glucose'   # In-memory: data is gone when the app stops
+    #url: 'jdbc:h2:~/glucose'    # Embedded file: data is kept between restarts
+    username: sa
+    password:
+
+  # H2 Console: http://localhost:8082/h2-console  (JDBC URL: jdbc:h2:mem:glucose, user: sa, no password)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: create          # create tables on startup (practice only)
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false             # set true to see every SQL query
+
+# --- Our settings for calling the DexCare vendor API ---
+dexcare:
+  base-url: http://localhost:8081
+  client-id: lvis-demo-client
+  client-secret: ${DEXCARE_CLIENT_SECRET:your-client-secret}   # real apps: env variable only
+  initial-from: 2026-11-24T00:00:00Z                             # first sync starts here
+  page-size: 100
+  connect-timeout: 3s
+  read-timeout: 10s
+  sync:
+    initial-delay-ms: 5000        # first automatic sync 5s after startup
+    interval-ms: 300000           # then every 5 minutes
+
+logging:
+  level:
+    com.kayple.api.fakedexcarecontroller: INFO
